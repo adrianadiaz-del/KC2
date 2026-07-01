@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knowledge Check Transition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     EDIT THIS for each course (or override via URL params):
+     ?topic=...  ?headline=...  ?eyebrow=...  ?sub=...
+     ============================================================ */
+  :root{
+    --blue:#246EFF;
+    --navy:#03257E;
+    --lightblue:#D7E5FF;
+    --ink:#0c1a3d;
+    --muted:#5a6b8c;
+    --card:#ffffff;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+
+  html,body{
+    background:transparent;
+    font-family:'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:2px 16px;
+  }
+
+  .card{
+    position:relative;
+    width:100%;
+    max-width:780px;
+    background:var(--card);
+    border:1px solid var(--lightblue);
+    border-left:5px solid var(--blue);
+    border-radius:14px;
+    padding:20px 28px;
+    box-shadow:0 8px 26px -14px rgba(3,37,126,.26);
+    display:flex;
+    align-items:center;
+    gap:22px;
+    overflow:hidden;
+  }
+
+  /* ---------- completion badge (signature element) ---------- */
+  .badge{position:relative;flex:0 0 auto;width:54px;height:54px}
+  .badge svg{width:100%;height:100%;display:block}
+  .badge-ring{fill:var(--lightblue);transform-origin:center;animation:pop .55s cubic-bezier(.16,1.2,.3,1) both}
+  .badge-disc{fill:var(--blue);transform-origin:center;animation:pop .55s cubic-bezier(.16,1.2,.3,1) .08s both}
+  .badge-check{
+    fill:none;stroke:#fff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:48;stroke-dashoffset:48;animation:draw .45s ease-out .42s forwards;
+  }
+
+  /* ---------- copy ---------- */
+  .body{flex:1 1 auto;min-width:0}
+  .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--blue);margin-bottom:3px;opacity:0;animation:rise .5s ease-out .5s forwards;
+  }
+  h1{
+    font-size:22px;font-weight:800;line-height:1.15;color:var(--navy);
+    margin-bottom:5px;opacity:0;animation:rise .5s ease-out .58s forwards;
+  }
+  .topic{
+    font-size:14.5px;font-weight:400;line-height:1.45;color:var(--muted);
+    opacity:0;animation:rise .5s ease-out .66s forwards;
+  }
+  .topic b{color:var(--ink);font-weight:700}
+
+  /* ---------- confetti ---------- */
+  .confetti{position:absolute;top:26px;left:40px;width:0;height:0;pointer-events:none}
+  .confetti i{position:absolute;width:7px;height:7px;border-radius:1.5px;opacity:0;animation:burst .9s ease-out .35s forwards}
+
+  @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+  @keyframes burst{
+    0%{opacity:1;transform:translate(0,0) rotate(0) scale(.6)}
+    100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1)}
+  }
+
+  @media (max-width:560px){
+    .card{flex-wrap:wrap;gap:14px;padding:18px 20px}
+    .body{flex:1 1 calc(100% - 76px)}
+    h1{font-size:20px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important}
+    .eyebrow,h1,.topic{opacity:1}
+    .badge-check{stroke-dashoffset:0}
+    .confetti{display:none}
+  }
+</style>
+</head>
+<body>
+  <main class="card" role="status" aria-live="polite">
+    <div class="confetti" id="confetti"></div>
+
+    <div class="badge" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <circle class="badge-ring" cx="50" cy="50" r="48"/>
+        <circle class="badge-disc" cx="50" cy="50" r="38"/>
+        <path class="badge-check" d="M34 51 L45 62 L67 39"/>
+      </svg>
+    </div>
+
+    <div class="body">
+      <p class="eyebrow" id="eyebrow">Section complete</p>
+      <h1 id="headline">Congratulations!</h1>
+      <p class="topic" id="topic">You've completed <b id="topicName">Site Inspections &amp; Pre-Install Requirements</b> and are one step closer to finishing the course.</p>
+    </div>
+  </main>
+
+  <script>
+    /* ---- per-course text: edit above OR pass via iframe URL params ---- */
+    const p = new URLSearchParams(location.search);
+    if (p.get('eyebrow'))  document.getElementById('eyebrow').textContent  = p.get('eyebrow');
+    if (p.get('headline')) document.getElementById('headline').textContent = p.get('headline');
+    if (p.get('sub'))      document.getElementById('topic').innerHTML       = p.get('sub');
+    else if (p.get('topic')) document.getElementById('topicName').textContent = p.get('topic');
+
+    /* ---- confetti, brand colors, fires once from the badge ---- */
+    const colors = ['#246EFF','#03257E','#D7E5FF','#7aa6ff'];
+    const wrap = document.getElementById('confetti');
+    if (!matchMedia('(prefers-reduced-motion:reduce)').matches){
+      for (let i=0;i<14;i++){
+        const c=document.createElement('i');
+        const ang=(Math.PI*2)*(i/14)+(Math.random()*.5);
+        const dist=55+Math.random()*45;
+        c.style.background=colors[i%colors.length];
+        c.style.setProperty('--x',Math.cos(ang)*dist+'px');
+        c.style.setProperty('--y',(Math.sin(ang)*dist-12)+'px');
+        c.style.setProperty('--r',(Math.random()*360)+'deg');
+        c.style.animationDelay=(.35+Math.random()*.15)+'s';
+        wrap.appendChild(c);
+      }
+    }
+  </script>
+</body>
+</html>
